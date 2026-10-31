@@ -1,0 +1,79 @@
+name: terraform-ci
+
+on:
+  pull_request:
+    paths: ["terraform/**", "policies/**", ".github/workflows/**"]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write        # requis pour OIDC
+  pull-requests: write
+
+env:
+  TF_VERSION: "1.10.5"
+  TF_IN_AUTOMATION: "true"
+
+jobs:
+  lint-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: "${{ env.TF_VERSION }}" }
+
+      - name: terraform fmt
+        run: terraform fmt -check -recursive -diff terraform
+
+      - name: terraform validate (modules + environnement, sans backend)
+        run: |
+          for d in terraform/bootstrap terraform/environments/lab; do
+            terraform -chdir="$d" init -backend=false -input=false
+            terraform -chdir="$d" validate
+          done
+
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          config_file: .checkov.yml
+
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  plan:
+    needs: lint-and-scan
+    runs-on: ubuntu-latest
+    # Le plan complet nécessite que l'organisation existe déjà (déploiement initial fait en local).
+    if: ${{ vars.AWS_CI_ROLE_ARN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: "${{ env.TF_VERSION }}" }
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_CI_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'eu-west-1' }}
+
+      - name: terraform init
+        working-directory: terraform/environments/lab
+        run: |
+          terraform init -input=false \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="key=lab/terraform.tfstate" \
+            -backend-config="region=${{ vars.AWS_REGION || 'eu-west-1' }}" \
+            -backend-config="use_lockfile=true"
+
+      - name: terraform plan
+        working-directory: terraform/environments/lab
+        env:
+          TF_VAR_account_emails: ${{ secrets.TF_VAR_ACCOUNT_EMAILS }}   # JSON, ex: {"security":"..","dev":"..","prod":".."}
+          TF_VAR_alert_email: ${{ secrets.TF_VAR_ALERT_EMAIL }}
+          TF_VAR_users: ${{ secrets.TF_VAR_USERS }}                     # JSON de la variable users
+        run: terraform plan -input=false -lock-timeout=60s

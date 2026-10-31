@@ -1,0 +1,14 @@
+# Checkov : exceptions assumées pour un laboratoire à coût minimal. À réévaluer pour un usage réel.
+directory:
+  - terraform
+framework:
+  - terraform
+quiet: true
+skip-check:
+  - CKV_AWS_144   # réplication inter-régions S3 : coût inutile en lab
+  - CKV_AWS_18    # access logging S3 : le bucket de logs ne se journalise pas lui-même
+  - CKV_AWS_145   # chiffrement KMS (CMK) S3 : SSE-S3 (AES256) retenu pour limiter les coûts
+  - CKV2_AWS_62   # notifications d'évènements S3 non requises
+  - CKV_AWS_26    # chiffrement SNS : EventBridge ne peut pas publier vers une clé gérée AWS
+  - CKV_AWS_274   # AdministratorAccess : exigé pour break-glass et permission set Administrator (session 1 h)
+  - CKV_AWS_35    # CloudTrail chiffré KMS : SSE-S3 retenu pour limiter les coûts

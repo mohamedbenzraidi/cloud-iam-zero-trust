@@ -1,0 +1,6 @@
+# cp backend.hcl.example backend.hcl  (fichier ignoré par git)
+bucket       = "lab-iam-tfstate-123456789012"
+key          = "lab/terraform.tfstate"
+region       = "eu-west-1"
+encrypt      = true
+use_lockfile = true

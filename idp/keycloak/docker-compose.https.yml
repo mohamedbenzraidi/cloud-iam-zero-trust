@@ -1,0 +1,25 @@
+# Surcharge HTTPS : Caddy obtient automatiquement un certificat Let's Encrypt pour KC_HOSTNAME.
+# Prérequis : un enregistrement DNS A vers cette machine, ports 80/443 ouverts.
+services:
+  keycloak:
+    command:
+      - start
+      - --import-realm
+      - --http-enabled=true
+      - --proxy-headers=xforwarded
+      - --hostname=https://${KC_HOSTNAME:?définir KC_HOSTNAME dans .env}
+    ports: !reset []
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [keycloak]
+    ports:
+      - "80:80"
+      - "443:443"
+    command: caddy reverse-proxy --from ${KC_HOSTNAME} --to keycloak:8080
+    volumes:
+      - caddy_data:/data
+
+volumes:
+  caddy_data:

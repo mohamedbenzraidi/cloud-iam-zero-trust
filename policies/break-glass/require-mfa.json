@@ -1,0 +1,26 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowSelfManageMfaWithoutMfa",
+      "Effect": "Allow",
+      "Action": [
+        "iam:ListMFADevices", "iam:ListVirtualMFADevices", "iam:CreateVirtualMFADevice",
+        "iam:EnableMFADevice", "iam:ResyncMFADevice", "iam:GetUser", "iam:ChangePassword",
+        "sts:GetSessionToken"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyEverythingElseWithoutMfa",
+      "Effect": "Deny",
+      "NotAction": [
+        "iam:ListMFADevices", "iam:ListVirtualMFADevices", "iam:CreateVirtualMFADevice",
+        "iam:EnableMFADevice", "iam:ResyncMFADevice", "iam:GetUser", "iam:ChangePassword",
+        "sts:GetSessionToken"
+      ],
+      "Resource": "*",
+      "Condition": { "BoolIfExists": { "aws:MultiFactorAuthPresent": "false" } }
+    }
+  ]
+}

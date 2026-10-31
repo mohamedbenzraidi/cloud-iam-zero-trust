@@ -1,0 +1,55 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowWorkloadServicesInAllowedRegions",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket", "s3:CreateBucket", "s3:GetBucketLocation",
+        "lambda:Get*", "lambda:List*", "lambda:CreateFunction", "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration", "lambda:InvokeFunction", "lambda:DeleteFunction",
+        "dynamodb:Get*", "dynamodb:Query", "dynamodb:Scan", "dynamodb:PutItem", "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem", "dynamodb:Describe*", "dynamodb:List*", "dynamodb:CreateTable",
+        "logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents", "logs:Describe*", "logs:Get*", "logs:FilterLogEvents",
+        "cloudwatch:Describe*", "cloudwatch:Get*", "cloudwatch:List*", "cloudwatch:PutMetricData",
+        "sqs:SendMessage", "sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:CreateQueue", "sqs:Get*", "sqs:List*",
+        "sns:Publish", "sns:Subscribe", "sns:CreateTopic", "sns:List*", "sns:Get*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": { "aws:RequestedRegion": ["eu-west-1", "us-east-1"] }
+      }
+    },
+    {
+      "Sid": "AllowRoleCreationOnlyWithBoundary",
+      "Effect": "Allow",
+      "Action": ["iam:CreateRole", "iam:PutRolePolicy", "iam:AttachRolePolicy", "iam:DeleteRolePolicy", "iam:DetachRolePolicy"],
+      "Resource": "*",
+      "Condition": {
+        "StringLike": { "iam:PermissionsBoundary": "arn:aws:iam::*:policy/developer-boundary" }
+      }
+    },
+    {
+      "Sid": "AllowIamReadAndPassRole",
+      "Effect": "Allow",
+      "Action": ["iam:Get*", "iam:List*", "iam:PassRole", "iam:DeleteRole", "iam:TagRole"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyBoundaryRemovalAndTampering",
+      "Effect": "Deny",
+      "Action": [
+        "iam:DeleteRolePermissionsBoundary", "iam:PutRolePermissionsBoundary",
+        "iam:DeleteUserPermissionsBoundary", "iam:PutUserPermissionsBoundary",
+        "iam:CreatePolicyVersion", "iam:DeletePolicy", "iam:DeletePolicyVersion", "iam:SetDefaultPolicyVersion"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyIamUsersAndKeys",
+      "Effect": "Deny",
+      "Action": ["iam:CreateUser", "iam:CreateLoginProfile", "iam:CreateAccessKey"],
+      "Resource": "*"
+    }
+  ]
+}

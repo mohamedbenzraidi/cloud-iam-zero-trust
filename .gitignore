@@ -1,0 +1,29 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfplan
+tfplan
+override.tf
+override.tf.json
+*_override.tf
+terraform.tfvars
+*.auto.tfvars
+backend.hcl
+!*.tfvars.example
+# .terraform.lock.hcl : à COMMITER (verrouille les versions des providers)
+
+# Secrets
+.env
+*.pem
+*.key
+*.p12
+*.pfx
+.secrets/
+idp/keycloak/*.secret.json
+
+# Divers
+.DS_Store
+*.log
+.venv/

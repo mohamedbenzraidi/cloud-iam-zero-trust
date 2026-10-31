@@ -1,0 +1,20 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyIamUsersAndKeys",
+      "Effect": "Deny",
+      "Action": ["iam:CreateUser", "iam:CreateLoginProfile", "iam:CreateAccessKey"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyOutsideAllowedRegions",
+      "Effect": "Deny",
+      "NotAction": ["iam:*", "sts:*", "organizations:*", "support:*", "budgets:*", "ce:*", "cloudfront:*", "route53:*", "tag:*"],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": { "aws:RequestedRegion": ["eu-west-1", "us-east-1"] }
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+# cp terraform.tfvars.example terraform.tfvars  (fichier ignoré par git, ne JAMAIS le commiter)
+
+name_prefix = "lab"
+home_region = "eu-west-1"
+
+# E-mails uniques et réels (vous devez pouvoir les recevoir). Astuce : alias "+" de votre adresse.
+account_emails = {
+  security = "moi+lab-security@example.com"
+  dev      = "moi+lab-dev@example.com"
+  prod     = "moi+lab-prod@example.com"
+}
+
+alert_email = "moi+lab-alerts@example.com"
+
+# false = état "avant" (PowerUser-Dev) ; passer à true en phase 4 pour l'état "après"
+developers_use_least_privilege = false
+
+users = {
+  alice = { display_name = "Alice Admin", given_name = "Alice", family_name = "Admin", email = "alice@example.com", groups = ["cloud-admins"] }
+  bob   = { display_name = "Bob Dev", given_name = "Bob", family_name = "Dev", email = "bob@example.com", groups = ["developers"] }
+  carol = { display_name = "Carol Audit", given_name = "Carol", family_name = "Audit", email = "carol@example.com", groups = ["auditors"] }
+  dave  = { display_name = "Dave Dev", given_name = "Dave", family_name = "Dev", email = "dave@example.com", groups = ["developers"] }
+}

@@ -1,0 +1,22 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowOnlyWorkloadServices",
+      "Effect": "Allow",
+      "Action": ["s3:*", "lambda:*", "dynamodb:*", "logs:*", "cloudwatch:*", "sqs:*", "sns:*", "events:*", "xray:*", "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyPrivilegeEscalation",
+      "Effect": "Deny",
+      "Action": [
+        "iam:CreateUser", "iam:CreateAccessKey", "iam:CreateLoginProfile",
+        "iam:DeleteRolePermissionsBoundary", "iam:PutRolePermissionsBoundary",
+        "iam:CreatePolicyVersion", "iam:SetDefaultPolicyVersion",
+        "organizations:*", "account:*", "cloudtrail:StopLogging", "cloudtrail:DeleteTrail"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
